@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="NetCharacterComponent" inherits="Node" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Base component that orchestrates other latency compensation components. Also handles dependency injection for other components. Needs to be added to a root node derived from a physics body class.
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="_enter_tree">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="_exit_tree">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="_validate_init_nodes">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="_wire_components">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="_validate_sim_properties">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="_connect_net_signals">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="_disconnect_net_signals">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="_is_local">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="_process">
+			<return type="void" />
+			<param index="0" name="delta" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="_before_tick">
+			<return type="void" />
+			<param index="0" name="_tick" type="int" />
+			<param index="1" name="_delta" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="_on_tick">
+			<return type="void" />
+			<param index="0" name="tick" type="int" />
+			<param index="1" name="delta" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="_after_tick">
+			<return type="void" />
+			<param index="0" name="_tick" type="int" />
+			<param index="1" name="delta" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="_sv_broadcast_state">
+			<return type="void" />
+			<param index="0" name="sv_snapshot" type="Dictionary" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="sim_properties" type="StringName[]" setter="" getter="">
+			Properties of the root node that need to be used by prediction and other latency compensation components(e.g position, rotation, velocity, etc). These properties will be interpolated, reconciled and synchronized across the network.
+		</member>
+		<member name="physics_body" type="Node" setter="" getter="">
+			Must be the root physics character body that will be predicted
+		</member>
+		<member name="visual_body" type="Node" setter="" getter="">
+			Must be a node that contains all of the visual child nodes e.g Sprites/Camera/Meshes
+		</member>
+		<member name="input" type="NetInput" setter="" getter="">
+			Input, the local peer should have authority over this node, holds custom input logic based on what the devs need
+		</member>
+		<member name="prediction_component" type="NetPredictionComponent" setter="" getter="">
+			Prediction component handles client-side prediction and reconciliation
+		</member>
+		<member name="interpolation_component" type="NetInterpolationComponent" setter="" getter="">
+			Interpolation component handles local and remote peer interpolation
+		</member>
+		<member name="simulator" type="NetSimulator" setter="" getter="">
+			Simulator holds custom movement/combat/etc logic implemented by the devs
+		</member>
+		<member name="_current_input" type="Dictionary" setter="" getter="" default="{}">
+		</member>
+	</members>
+</class>
