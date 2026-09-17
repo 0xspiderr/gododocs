@@ -2,19 +2,11 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
 	"log"
 	"os"
 	"strings"
 	"text/template"
 )
-
-// PLAN
-// 1. read input xml file(s) from a given directory sequentially
-// 2. convert xml files of godot documentation to markdown
-// 2.1 -> implies I have to map the generate xml to a markdown structure
-// 2.2 -> optionally expand the tool to convert to other formats
-// 3. output to a given directory from cmdline
 
 type Class struct {
 	XMLName          xml.Name   `xml:"class"`
@@ -36,7 +28,6 @@ type Method struct {
 	Return      Return   `xml:"return"`
 	Param       []Param  `xml:"param"`
 	Description string   `xml:"description"`
-	ParamString string
 }
 
 type Return struct {
@@ -75,55 +66,39 @@ type Signal struct {
 	Description string   `xml:"description"`
 }
 
-////////////////////////////////////////////////////////////////////////
-// func parseXML(c Class) string {									  //
-// 	var class string												  //
-// 	class = fmt.Sprintf("# %s Class Reference\n"+					  //
-// 		"Inherits %s" +												  //
-// 		"## Synopsis\n"+											  //
-// 		"```gdscript "+												  //
-// 		"class_name %s```"+											  //
-// 		"%s\n", c.Name, c.Inherits, c.BriefDescription, c.Name)		  //
-// 																	  //
-// 	var members string												  //
-// 	for _, m := range c.Members {									  //
-// 		members += fmt.Sprintf("## Members\n" +						  //
-// 			"```gdscript " +										  //
-// 			"%s:%s```\n" , m.Name, m.Type) 							  //
-// 	}																  //
-// 																	  //
-// }																  //
-////////////////////////////////////////////////////////////////////////
-
 // purpose: Joins parameters by name and type and then separates
-// them by comma. This method makes templates lighter.
-func (c *Class) aggregateParameters() {
-	for _, m := range c.Methods {
-		params := make([]string, len(m.Param))
-		for i, p := range m.Param {
-			params[i] += p.Name + ": " + p.Type
-		}
-		m.ParamString = strings.Join(params, ", ")
+// them by comma. This method makes templates lighter. It is
+// necessary also because both Method[] and Signal[] have []Param
+// and I didnt want to repeat the code for both of them.
+func joinParameters(params []Param) string {
+	pr := make([]string, len(params))
+	for i, p := range params {
+		pr[i] += p.Name + ": " + p.Type
 	}
+	return strings.Join(pr, ", ")
 }
 
 // purpose: Parses template files and structures them to
-// output a markdown file.
+// output a markdown file with the documentation of the class.
 func parseTemplate(c Class) {
-	c.aggregateParameters()
-	t, err := template.ParseFiles("methods.tmpl")
+	fm := template.FuncMap{"joinParameters": joinParameters}
+	t := template.New("main.tmpl").Funcs(fm)
+	t = template.Must(t.ParseFiles("main.tmpl", "class.tmpl", "members.tmpl", "methods.tmpl", "signals.tmpl"))
+
+	f, err := os.Create("test.md")
 	if err != nil {
 		panic(err)
 	}
-
-	f, err := os.Create("test.md") //
-
-	if err != nil {
-		panic(err)
-	}
-	err = t.Execute(f, c)
+	t.Execute(f, c)
 }
 
+// todo:
+// 1. add flag commands
+// -dir input directory with .xml files
+// -out output directory where .md files will be stored
+// 2. crawl -dir and subdirs
+// 3. optional format [-format] .md/.html
+// 4. maybe change template formatting to look different
 func main() {
 	f, err := os.ReadFile("NetCharacterComponent.xml")
 	if err != nil {
@@ -134,6 +109,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println()
 	parseTemplate(c)
 }

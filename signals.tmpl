@@ -1,0 +1,9 @@
+{{ define "signals" }}
+## Signals
+
+{{- range .Signal }}
+{{ .Name }}{{ joinParameters .Param }}
+{{ .Description }}
+{{- end -}}
+
+{{ end }}

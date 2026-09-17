@@ -1,0 +1,9 @@
+{{ define "members" }}
+## Members
+<br>
+{{- range .Members }}
+{{ .Name }}: {{ .Type }}\
+{{ .Description }}
+{{- end -}}
+
+{{ end }}

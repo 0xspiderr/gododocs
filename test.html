@@ -12,22 +12,53 @@
 
 <body>
 
-<h2 id="methods">Methods<br />
-</h2>
-<p>_enter_tree() -&gt; void<br />
-func _exit_tree() -&gt; void<br />
-func _validate_init_nodes() -&gt; void<br />
-func _wire_components() -&gt; void<br />
-func _validate_sim_properties() -&gt; void<br />
-func _connect_net_signals() -&gt; void<br />
-func _disconnect_net_signals() -&gt; void<br />
-func _is_local() -&gt; bool<br />
-func _process(delta: float) -&gt; void<br />
-func _before_tick(_tick: int, _delta: float) -&gt; void<br />
-func _on_tick(tick: int, delta: float) -&gt; void<br />
-func _after_tick(_tick: int, delta: float) -&gt; void<br />
-func _sv_broadcast_state(sv_snapshot: Dictionary) -&gt; void<br />
+<h1 id="netcharactercomponent-class-reference">NetCharacterComponent
+Class Reference</h1>
+<h2 id="inherits-node">Inherits Node</h2>
+<h2 id="synopsis">Synopsis</h2>
+<pre><code>    Base component that orchestrates other latency compensation components. Also handles dependency injection for other components. Needs to be added to a root node derived from a physics body class.</code></pre>
+<h2 id="members">Members</h2>
+<p><br> sim_properties: StringName[]<br />
 </p>
+<pre><code>        Properties of the root node that need to be used by prediction and other latency compensation components(e.g position, rotation, velocity, etc). These properties will be interpolated, reconciled and synchronized across the network.
+    </code></pre>
+<p>physics_body: Node<br />
+</p>
+<pre><code>        Must be the root physics character body that will be predicted
+    </code></pre>
+<p>visual_body: Node<br />
+</p>
+<pre><code>        Must be a node that contains all of the visual child nodes e.g Sprites/Camera/Meshes
+    </code></pre>
+<p>input: NetInput<br />
+</p>
+<pre><code>        Input, the local peer should have authority over this node, holds custom input logic based on what the devs need
+    </code></pre>
+<p>prediction_component: NetPredictionComponent<br />
+</p>
+<pre><code>        Prediction component handles client-side prediction and reconciliation
+    </code></pre>
+<p>interpolation_component: NetInterpolationComponent<br />
+</p>
+<pre><code>        Interpolation component handles local and remote peer interpolation
+    </code></pre>
+<p>simulator: NetSimulator<br />
+</p>
+<pre><code>        Simulator holds custom movement/combat/etc logic implemented by the devs
+    </code></pre>
+<p>_current_input: Dictionary<br />
+</p>
+<h2 id="methods">Methods</h2>
+<p><br>func _enter_tree() -&gt; void<br> func _exit_tree() -&gt;
+void<br> func _validate_init_nodes() -&gt; void<br> func
+_wire_components() -&gt; void<br> func _validate_sim_properties() -&gt;
+void<br> func _connect_net_signals() -&gt; void<br> func
+_disconnect_net_signals() -&gt; void<br> func _is_local() -&gt; bool<br>
+func _process(delta: float) -&gt; void<br> func _before_tick(_tick: int,
+_delta: float) -&gt; void<br> func _on_tick(tick: int, delta: float)
+-&gt; void<br> func _after_tick(_tick: int, delta: float) -&gt; void<br>
+func _sv_broadcast_state(sv_snapshot: Dictionary) -&gt; void<br></p>
+<h2 id="signals">Signals</h2>
 
 </body>
 </html>

@@ -1,6 +1,9 @@
-## Methods\
-\
+{{ define "methods" }}
+## Methods
+<br>
 {{- range .Methods -}}
-   func {{ .Name }}({{ .ParamString }}) -> {{ .Return.Type -}}\
+   func {{ .Name }}({{ joinParameters .Param }}) -> {{ .Return.Type -}}<br>
    {{- .Description -}}
-{{- end -}}
+{{ end }}
+
+{{ end }}
