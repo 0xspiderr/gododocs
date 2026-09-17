@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"text/template"
 )
 
 // PLAN
@@ -21,7 +23,7 @@ type Class struct {
 	BriefDescription string     `xml:"brief_description"`
 	Description      string     `xml:"description"`
 	Tutorials        string     `xml:"tutorials"`
-	Methods          []Method   `xml:"methods>method"`
+	Methods          []*Method  `xml:"methods>method"`
 	Members          []Member   `xml:"members>member"`
 	Constants        []Constant `xml:"constants>constant"`
 	Signals          []Signal   `xml:"signals>signal"`
@@ -34,6 +36,7 @@ type Method struct {
 	Return      Return   `xml:"return"`
 	Param       []Param  `xml:"param"`
 	Description string   `xml:"description"`
+	ParamString string
 }
 
 type Return struct {
@@ -66,21 +69,71 @@ type Constant struct {
 }
 
 type Signal struct {
-	XMLName     xml.Name `xml:"constant"`
+	XMLName     xml.Name `xml:"signal"`
 	Name        string   `xml:"name,attr"`
 	Params      []Param  `xml:"param"`
 	Description string   `xml:"description"`
 }
 
+////////////////////////////////////////////////////////////////////////
+// func parseXML(c Class) string {									  //
+// 	var class string												  //
+// 	class = fmt.Sprintf("# %s Class Reference\n"+					  //
+// 		"Inherits %s" +												  //
+// 		"## Synopsis\n"+											  //
+// 		"```gdscript "+												  //
+// 		"class_name %s```"+											  //
+// 		"%s\n", c.Name, c.Inherits, c.BriefDescription, c.Name)		  //
+// 																	  //
+// 	var members string												  //
+// 	for _, m := range c.Members {									  //
+// 		members += fmt.Sprintf("## Members\n" +						  //
+// 			"```gdscript " +										  //
+// 			"%s:%s```\n" , m.Name, m.Type) 							  //
+// 	}																  //
+// 																	  //
+// }																  //
+////////////////////////////////////////////////////////////////////////
+
+// purpose: Joins parameters by name and type and then separates
+// them by comma. This method makes templates lighter.
+func (c *Class) aggregateParameters() {
+	for _, m := range c.Methods {
+		params := make([]string, len(m.Param))
+		for i, p := range m.Param {
+			params[i] += p.Name + ": " + p.Type
+		}
+		m.ParamString = strings.Join(params, ", ")
+	}
+}
+
+// purpose: Parses template files and structures them to
+// output a markdown file.
+func parseTemplate(c Class) {
+	c.aggregateParameters()
+	t, err := template.ParseFiles("methods.tmpl")
+	if err != nil {
+		panic(err)
+	}
+
+	f, err := os.Create("test.md") //
+
+	if err != nil {
+		panic(err)
+	}
+	err = t.Execute(f, c)
+}
+
 func main() {
-	f, err := os.ReadFile("./NetCharacterComponent.xml")
+	f, err := os.ReadFile("NetCharacterComponent.xml")
 	if err != nil {
 		log.Fatal(err)
 	}
-	var d Class
-	err = xml.Unmarshal(f, &d)
+	var c Class
+	err = xml.Unmarshal(f, &c)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(d)
+	fmt.Println()
+	parseTemplate(c)
 }

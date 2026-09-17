@@ -1,0 +1,6 @@
+## Methods\
+\
+{{- range .Methods -}}
+   func {{ .Name }}({{ .ParamString }}) -> {{ .Return.Type -}}\
+   {{- .Description -}}
+{{- end -}}
