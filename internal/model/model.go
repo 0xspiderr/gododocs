@@ -58,6 +58,6 @@ type Constant struct {
 type Signal struct {
 	XMLName     xml.Name `xml:"signal"`
 	Name        string   `xml:"name,attr"`
-	Params      []Param  `xml:"param"`
+	Params      []Param  `xml:"params"`
 	Description string   `xml:"description"`
 }

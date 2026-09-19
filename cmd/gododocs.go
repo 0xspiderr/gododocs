@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"os"
 
 	rd "github.com/0xspiderr/gododocs/internal/renderer"
 	st "github.com/0xspiderr/gododocs/internal/settings"
@@ -26,13 +28,29 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// append errors instead of Fatal log so the parser
+	// continues on the next classes
+	var errs []error
+	rendered := make(map[string]string, len(classes))
 	for _, c := range classes {
 		md, err := rd.Render(c)
 		if err != nil {
-			log.Fatal(err)
+			errs = append(errs, fmt.Errorf("%s: %w", c.Name, err))
+			continue
 		}
-		if err := wr.Write(settings.OutDir, c.Name, md); err != nil {
-			log.Fatal(err)
+		rendered[c.Name] = md
+	}
+
+	for name, md := range rendered {
+		if err := wr.Write(settings.OutDir, name, md); err != nil {
+			errs = append(errs, err)
 		}
+	}
+
+	if len(errs) > 0 {
+		for _, e := range errs {
+			fmt.Fprintln(os.Stderr, e)
+		}
+		os.Exit(1)
 	}
 }

@@ -46,10 +46,7 @@ func classFiles() []string {
 // by writer.go
 func Render(c m.Class) (string, error) {
 	fm := template.FuncMap{"joinParameters": joinParameters}
-	t, err := template.New("main.tmpl").Funcs(fm).ParseFS(tmplFS, classFiles()...)
-	if err != nil {
-		return "", err
-	}
+	t := template.Must(template.New("main.tmpl").Funcs(fm).ParseFS(tmplFS, classFiles()...))
 	var buf bytes.Buffer
 	if err := t.Execute(&buf, c); err != nil {
 		return "", err

@@ -1,0 +1,8 @@
+{{ define "constants" }}
+## Constants
+
+{{- range .Constants }}
+{{ .Name }}={{ .Value }}
+{{- end -}}
+
+{{ end }}
